@@ -29,3 +29,6 @@ TOKEN={discord bot token}
 ```sh
 docker-compose up
 ```
+
+## Status
+[![Discord Bots](https://top.gg/api/widget/712899313432395817.svg)](https://top.gg/bot/712899313432395817)
