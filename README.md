@@ -1,7 +1,7 @@
 # ojipolice
 
 ## なんだこれは
-Discordでおじさんな発言をしたときに警告するBot
+Discordでおじさんな発言をしたときに警告するBot  
 [招待リンク](https://discord.com/api/oauth2/authorize?client_id=712899313432395817&permissions=67584&scope=bot)
 
 ![screenshot](./assets/screenshot.png)

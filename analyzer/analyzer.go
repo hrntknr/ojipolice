@@ -26,24 +26,24 @@ var firstPerson = map[string]int{
 	"ﾎﾞｸ":   3,
 	"ｵﾚ":    3,
 	"小生":    2,
-	"オジサン":  5,
-	"ｵｼﾞｻﾝ": 5,
-	"おじさん":  5,
+	"オジサン":  3,
+	"ｵｼﾞｻﾝ": 3,
+	"おじさん":  3,
 	"オイラ":   2,
 }
 
 // ﾁｬﾝはギルティ
 var nameSuffix = map[string]int{
 	"チャン": 3,
-	"ﾁｬﾝ": 5,
+	"ﾁｬﾝ": 3,
 	"ちゃん": 1,
 }
 
 // ココらへんは黒に限りなく近いグレー
 var nanchatte = map[string]int{
-	"ﾅﾝﾁｬｯﾃ": 5,
-	"ナンチャッテ": 4,
-	"なんちゃって": 4,
+	"ﾅﾝﾁｬｯﾃ": 3,
+	"ナンチャッテ": 3,
+	"なんちゃって": 3,
 	"なんてね":   3,
 	"冗談":     1,
 }
@@ -157,7 +157,7 @@ func checkOjiLevelWithSentence(sentence string) OjiResult {
 	// 末尾のカタカナの数をチェック
 	endKatakana := 0
 	buf := []rune(sentence)
-	for i := len(buf); i >= 0; i-- {
+	for i := len(buf); i > 0; i-- {
 		if unicode.In(buf[i-1], unicode.Hiragana) {
 			break
 		}
@@ -166,7 +166,7 @@ func checkOjiLevelWithSentence(sentence string) OjiResult {
 		}
 	}
 	if endKatakana > 0 {
-		ojiScore += 5
+		ojiScore += 3
 	}
 
 	for w, score := range firstPerson {
@@ -211,12 +211,12 @@ func checkOjiLevelWithSentence(sentence string) OjiResult {
 		}
 	}
 
-	if ojiScore > 10 {
+	if ojiScore >= 8 {
 		return OjiResult{
 			Level:    Alert,
 			Sentence: sentence,
 		}
-	} else if ojiScore > 6 {
+	} else if ojiScore >= 4 {
 		return OjiResult{
 			Level:    Warn,
 			Sentence: sentence,
