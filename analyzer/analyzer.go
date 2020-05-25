@@ -2,10 +2,12 @@ package analyzer
 
 import (
 	"bufio"
+	"fmt"
 	"strings"
 	"unicode"
 
 	"github.com/ikawaha/kagome.ipadic/splitter"
+	"github.com/kyokomi/emoji"
 )
 
 type OjiLevel uint
@@ -15,6 +17,16 @@ const (
 	Alert = iota
 	Safe  = iota
 )
+
+var emojiMap = emoji.CodeMap()
+
+func em(str string) string {
+	emoji, ok := emojiMap[str]
+	if !ok {
+		panic(fmt.Sprintf("emoji not found: %s", str))
+	}
+	return emoji
+}
 
 // パターンはおじさんの生態を完全に理解しているgithub.com/greymd/ojichatを参考
 
@@ -26,24 +38,24 @@ var firstPerson = map[string]int{
 	"ﾎﾞｸ":   3,
 	"ｵﾚ":    3,
 	"小生":    2,
-	"オジサン":  5,
-	"ｵｼﾞｻﾝ": 5,
-	"おじさん":  5,
+	"オジサン":  3,
+	"ｵｼﾞｻﾝ": 3,
+	"おじさん":  3,
 	"オイラ":   2,
 }
 
 // ﾁｬﾝはギルティ
 var nameSuffix = map[string]int{
 	"チャン": 3,
-	"ﾁｬﾝ": 5,
+	"ﾁｬﾝ": 3,
 	"ちゃん": 1,
 }
 
 // ココらへんは黒に限りなく近いグレー
 var nanchatte = map[string]int{
-	"ﾅﾝﾁｬｯﾃ": 5,
-	"ナンチャッテ": 4,
-	"なんちゃって": 4,
+	"ﾅﾝﾁｬｯﾃ": 3,
+	"ナンチャッテ": 3,
+	"なんちゃって": 3,
 	"なんてね":   3,
 	"冗談":     1,
 }
@@ -70,74 +82,59 @@ var metaphor = map[string]int{
 // おじさんは絵文字を連打するから割と小さめに設定するよ
 // 上で除外した絵文字もいれるヨ！
 // 開発OSで絵文字の処理依存するの草、おじさん多彩すぎだろ
-var emoji = map[string]int{
+var emojiList = map[string]int{
 	// OTHER
-	"🏨": 2,
-	"🏩": 2,
-	"❤": 2,
-	"🎤": 1,
-	"🚗": 1,
+	em(":hotel:"):      2,
+	em(":love_hotel:"): 2,
+	em(":microphone:"): 1,
+	em(":blue_car:"):   1,
+	em(":red_car:"):    1,
 	// EMOJI_POS
-	"😃":     1,
-	"✋":     1,
-	"❗":     3,
-	"😄":     1,
-	"😆":     1,
-	"😚":     1,
-	"😘":     1,
-	"💕":     2,
-	"💗":     2,
-	"😍":     2,
-	"😁":     1,
-	"😋":     1,
-	"😂":     1,
-	"😊":     1,
-	"🎵":     1,
-	"(^_^)": 1,
-	"(^o^)": 1,
-	"(^з<)": 1,
+	em(":smiley:"):              1,
+	em(":raised_hand:"):         1,
+	em(":exclamation:"):         3,
+	em(":smile:"):               1,
+	em(":laughing:"):            1,
+	em(":kissing_closed_eyes:"): 1,
+	em(":kissing_heart:"):       1,
+	em(":two_hearts:"):          2,
+	em(":heartpulse:"):          2,
+	em(":heart_eyes:"):          2,
+	em(":grin:"):                1,
+	em(":yum:"):                 1,
+	em(":joy:"):                 1,
+	em(":blush:"):               1,
+	em(":musical_note:"):        1,
 	// EMOJI_NEG
-	"💦":       2,
-	"💔":       2,
-	"😱":       1,
-	"😰":       1,
-	"😭":       1,
-	"😓":       1,
-	"😣":       1,
-	"😖":       1,
-	"😥":       1,
-	"😢":       1,
-	"(◎ ＿◎;)": 1,
-	"(T_T)":   1,
-	"^^;":     1,
-	"(^_^;":   1,
-	"(・_・;":   1,
-	"(￣Д￣；；":  1,
-	"(^▽^;)":  1,
-	"(-_-;)":  1,
+	em(":sweat_drops:"):           1,
+	em(":broken_heart:"):          1,
+	em(":scream:"):                1,
+	em(":cold_sweat:"):            1,
+	em(":sob:"):                   1,
+	em(":sweat:"):                 1,
+	em(":persevere:"):             1,
+	em(":confounded:"):            1,
+	em(":disappointed_relieved:"): 1,
+	em(":cry:"):                   1,
 	// EMOJI_NEUT
-	"💤":      1,
-	"😴":      1,
-	"🙂":      1,
-	"🤑":      1,
-	"😪":      1,
-	"🛌":      1,
-	"😎":      1,
-	"😤":      1,
-	"😒":      1,
-	"😙":      1,
-	"😏":      1,
-	"😳":      1,
-	"😌":      1,
-	"（￣▽￣）":  1,
-	"(＃￣З￣)": 1,
-	"(^^;;":  1,
+	em(":zzz:"):                    1,
+	em(":sleeping:"):               1,
+	em(":slight_smile:"):           1,
+	em(":money_mouth:"):            1,
+	em(":sleepy:"):                 1,
+	em(":sleeping_accommodation:"): 1,
+	em(":sunglasses:"):             1,
+	em(":triumph:"):                1,
+	em(":unamused:"):               1,
+	em(":kissing_smiling_eyes:"):   1,
+	em(":smirk:"):                  1,
+	em(":flushed:"):                1,
+	em(":relieved:"):               1,
 	// EMOJI_ASK
-	"⁉":      1,
-	"❓":      3,
-	"🤔":      1,
-	"😜":      1,
-	"（￣ー￣?）": 1,
+	em(":question:"):                     3,
+	em(":interrobang:"):                  3,
+	em(":thinking:"):                     1,
+	em(":stuck_out_tongue_winking_eye:"): 1,
 }
 
 func CheckOjiLevel(content string) []OjiResult {
@@ -157,7 +154,7 @@ func checkOjiLevelWithSentence(sentence string) OjiResult {
 	// 末尾のカタカナの数をチェック
 	endKatakana := 0
 	buf := []rune(sentence)
-	for i := len(buf); i >= 0; i-- {
+	for i := len(buf); i > 0; i-- {
 		if unicode.In(buf[i-1], unicode.Hiragana) {
 			break
 		}
@@ -166,7 +163,7 @@ func checkOjiLevelWithSentence(sentence string) OjiResult {
 		}
 	}
 	if endKatakana > 0 {
-		ojiScore += 5
+		ojiScore += 3
 	}
 
 	for w, score := range firstPerson {
@@ -205,18 +202,18 @@ func checkOjiLevelWithSentence(sentence string) OjiResult {
 		}
 	}
 
-	for w, score := range emoji {
+	for w, score := range emojiList {
 		if strings.Contains(sentence, w) {
 			ojiScore += score
 		}
 	}
 
-	if ojiScore > 10 {
+	if ojiScore >= 8 {
 		return OjiResult{
 			Level:    Alert,
 			Sentence: sentence,
 		}
-	} else if ojiScore > 6 {
+	} else if ojiScore >= 4 {
 		return OjiResult{
 			Level:    Warn,
 			Sentence: sentence,
